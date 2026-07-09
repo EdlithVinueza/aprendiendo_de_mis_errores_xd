@@ -37,8 +37,12 @@ dependencies {
     // Service Discovery dinámico con Consul y Stork
     implementation("io.quarkus:quarkus-smallrye-stork")
     implementation("io.smallrye.reactive:smallrye-mutiny-vertx-consul-client")
+   
     // El "traductor" de Stork para que pueda leer desde Consul
     implementation("io.smallrye.stork:stork-service-discovery-consul")
+     
+    // Telemetría / Métricas
+    implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
 }
 
 tasks.test {

@@ -19,7 +19,7 @@ services:
     ports:
       - "8501:8500"
 
-  # 3. API Gateway / Proxy Inverso (Traefik)
+  # 3. API Gateway / Proxy Inverso (Traefik) con Métricas
   proxy:
     image: traefik:3.7.5
     container_name: traefik-proxy
@@ -30,9 +30,14 @@ services:
       - "--providers.consulcatalog.endpoint.address=consul-server:8500"
       - "--providers.consulcatalog.refreshInterval=5s"
       - "--entrypoints.web.address=:80"
+      - "--entryPoints.traefik.address=:8080"
+      - "--entryPoints.metrics.address=:8082"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entryPoint=metrics"
     ports:
-      - "80:80" # Puerto de la app unificada
-      - "8888:8080" # Puerto del Dashboard de Traefik
+      - "80:80"       # Puerto de la app unificada
+      - "8888:8080"   # Puerto del Dashboard de Traefik
+      - "8082:8082"   # Puerto de métricas de Traefik
     depends_on:
       - consul
 
@@ -71,3 +76,36 @@ services:
       - prestamos-app
       - consul
       - proxy
+
+  # 6. Prometheus (Recolector de métricas)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-server
+    volumes:
+      - ./configs:/etc/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - proxy
+      - prestamos-app
+      - clientes-app
+
+  # 7. Grafana (Dashboard de métricas)
+  grafana:
+    image: grafana/grafana
+    container_name: grafana-dashboard
+    ports:
+     - "3000:3000"
+    depends_on:
+      - prometheus
+
+  # 8. PostgreSQL Exporter (Métricas de BD)
+  postgresql-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: postgresql-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:labcom,2015@db-server:5432/db_examen?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      - db-server
