@@ -36,7 +36,7 @@ public class PrestamoLifecycle {
         try {
             ConsulClientOptions options = new ConsulClientOptions().setHost(consulHost).setPort(consulPort);
             this.client = ConsulClient.create(vertx, options);
-            String ipAddress = "127.0.0.1";
+            String ipAddress = InetAddress.getLocalHost().getHostAddress();
 
             // Un ID único por si levantas varias instancias
             this.serviceId = "app-prestamos-" + java.util.UUID.randomUUID().toString();
@@ -46,12 +46,19 @@ public class PrestamoLifecycle {
                     .setInterval("10s")
                     .setDeregisterAfter("10s");
 
+            java.util.List<String> tags = java.util.List.of(
+                    "traefik.enable=true",
+                    "traefik.http.routers.app-prestamos.rule=PathPrefix(`/prestamos`)",
+                    "traefik.http.services.app-prestamos.loadbalancer.server.port=" + appPort
+            );
+
             ServiceOptions serviceOptions = new ServiceOptions()
                     .setName("app-prestamos")
                     .setId(serviceId)
                     .setAddress(ipAddress)
                     .setPort(appPort)
-                    .setCheckOptions(checkOptions);
+                    .setCheckOptions(checkOptions)
+                    .setTags(tags);
 
             client.registerService(serviceOptions)
                     .onSuccess(it -> System.out.println("Service registered in Consul with ID: " + serviceId))
