@@ -14,6 +14,8 @@ repositories {
 dependencies {
     //---------------------------------------
     //Primera Parte
+    //---------------------------------------
+
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.35.2"))
     //---------------------------------------
     // REST y JSON
@@ -26,9 +28,17 @@ dependencies {
     implementation("io.quarkus:quarkus-jdbc-postgresql")
     // Flyway no va aqui por que de eso se encarga el otro servicio
 
-    //Segunda Parte
     // REST Client para llamar a préstamos
     implementation("io.quarkus:quarkus-rest-client-jsonb")
+
+    //---------------------------------------
+    //Segunda Parte
+    //---------------------------------------
+    // Service Discovery dinámico con Consul y Stork
+    implementation("io.quarkus:quarkus-smallrye-stork")
+    implementation("io.smallrye.reactive:smallrye-mutiny-vertx-consul-client")
+    // El "traductor" de Stork para que pueda leer desde Consul
+    implementation("io.smallrye.stork:stork-service-discovery-consul")
 }
 
 tasks.test {

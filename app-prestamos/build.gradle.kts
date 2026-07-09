@@ -14,6 +14,7 @@ repositories {
 dependencies {
     //---------------------------------------
     //Primera Parte
+    //---------------------------------------
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.35.2"))
     //---------------------------------------
     // REST y JSON
@@ -27,6 +28,15 @@ dependencies {
     // Flyway (Para correr el script .sql)
     implementation("io.quarkus:quarkus-flyway")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:12.5.0")
+
+    //---------------------------------------
+    //Segunda Parte
+    //---------------------------------------
+    // Service Discovery dinámico con Consul
+    implementation("io.quarkus:quarkus-smallrye-stork")
+    implementation("io.smallrye.reactive:smallrye-mutiny-vertx-consul-client")
+
+
 }
 
 tasks.test {
